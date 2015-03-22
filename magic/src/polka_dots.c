@@ -194,12 +194,11 @@ static void do_polka_dots(void * ptr, int which ATTRIBUTE_UNUSED, SDL_Surface * 
 {
   	magic_api * api = (magic_api *) ptr;
 
-  	int xx, yy, centre_x, centre_y;
+  	int xx, yy, centre_x=x, centre_y=y;
 	//Uint8 r,g,b;
 
     					//to  increase dots density, cam iterate over the amount of dots to be drawn 
-	centre_x = x % canvas->w;		
-    	centre_y = y % canvas->h;
+
     	if (which == polka_dots)
 	{
       		for (yy = -polka_dots_RADIUS; yy < polka_dots_RADIUS; yy++)
@@ -223,10 +222,14 @@ static void polka_dots_linecb(void * ptr, int which,SDL_Surface * canvas, SDL_Su
 
   	if (rand() % 10 == 0) // generating polka dots at random points 
  	{
-    		polka_dots_click(api, which, MODE_PAINT, canvas, last,
-               	x + (rand() % polka_dots_SIZE * 2) - polka_dots_SIZE,
-               	y + (rand() % polka_dots_SIZE * 2) - polka_dots_SIZE,
-               	&rect);
+		if( x < canvas->w && y < canvas->h )
+		{ 		
+			
+			polka_dots_click(api, which, MODE_PAINT, canvas, last,
+               		x + (rand() % polka_dots_SIZE * 2) - polka_dots_SIZE,
+               		y + (rand() % polka_dots_SIZE * 2) - polka_dots_SIZE,
+               		&rect);
+		}
   	}
 }
 
@@ -249,10 +252,10 @@ void polka_dots_drag(magic_api * api, int which, SDL_Surface * canvas, SDL_Surfa
 		y = tmp; 
 	}
 
-  	update_rect->x = ox - polka_dots_SIZE * 2;
-  	update_rect->y = oy - polka_dots_SIZE * 2;
-  	update_rect->w = polka_dots_SIZE * 4;
-  	update_rect->h = polka_dots_SIZE * 4;
+  	update_rect->x = min(ox, x) - polka_dots_SIZE * 2;
+	update_rect->y = min(oy, y) - polka_dots_SIZE * 2;
+	update_rect->w = abs(ox - x) + polka_dots_SIZE * 4;
+	update_rect->h = abs(oy - y) + polka_dots_SIZE * 4;
 }
 
 // Affect the canvas on click:
